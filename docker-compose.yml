@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  next-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: alpha-eat-planner
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=file:./dev.db
+      - NEXTAUTH_SECRET=changeme123
+      - NEXTAUTH_URL=http://localhost:3000
+    volumes:
+      - ./prisma/dev.db:/app/prisma/dev.db
+    restart: always

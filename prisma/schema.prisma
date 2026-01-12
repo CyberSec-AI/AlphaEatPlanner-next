@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id                Int      @id @default(autoincrement())
+  username          String   @unique
+  hashedPassword    String
+  fullName          String?
+  profilePictureUrl String?
+  recipes           Recipe[]
+}
+
+model Recipe {
+  id              Int                @id @default(autoincrement())
+  title           String
+  description     String?
+  defaultServings Int                @default(2)
+  isFavorite      Boolean            @default(false)
+  rating          Int                @default(0)
+  isVegetarian    Boolean            @default(false)
+  imageUrl        String?
+  tags            String?            // Stored as JSON string
+  
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  authorId        Int?
+  author          User?              @relation(fields: [authorId], references: [id])
+
+  ingredients     RecipeIngredient[]
+  steps           RecipeStep[]
+  mealPlanItems   MealPlanItem[]
+}
+
+model RecipeIngredient {
+  id          Int     @id @default(autoincrement())
+  recipeId    Int
+  recipe      Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  name        String
+  quantity    Decimal
+  unit        String
+  variantMode String  @default("all") // 'all', 'standard', 'vegetarian'
+}
+
+model RecipeStep {
+  id          Int    @id @default(autoincrement())
+  recipeId    Int
+  recipe      Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  stepOrder   Int
+  instruction String
+}
+
+model MealPlanItem {
+  id                 Int      @id @default(autoincrement())
+  date               DateTime // Date only
+  recipeId           Int
+  recipe             Recipe   @relation(fields: [recipeId], references: [id])
+  servings           Int
+  servingsVegetarian Int      @default(0)
+  mealType           String   @default("dinner")
+  isShopped          Boolean  @default(false)
+}
+
+model GroceryManualItem {
+  id        Int     @id @default(autoincrement())
+  name      String
+  quantity  Decimal @default(1)
+  unit      String?
+  isChecked Boolean @default(false)
+  category  String  @default("Divers")
+}
+
+model GroceryLibraryItem {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  category    String    @default("Divers")
+  defaultUnit String?
+  usageCount  Int       @default(1)
+  lastUsed    DateTime?
+}
