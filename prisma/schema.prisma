@@ -13,35 +13,46 @@ model User {
   hashedPassword    String
   fullName          String?
   profilePictureUrl String?
+  
   recipes           Recipe[]
+  createdAt         DateTime @default(now())
 }
 
 model Recipe {
-  id              Int                @id @default(autoincrement())
+  id              Int      @id @default(autoincrement())
   title           String
   description     String?
-  defaultServings Int                @default(2)
-  isFavorite      Boolean            @default(false)
-  rating          Int                @default(0)
-  isVegetarian    Boolean            @default(false)
+  defaultServings Int      @default(2)
+  isFavorite      Boolean  @default(false)
+  rating          Int      @default(0)
+  isVegetarian    Boolean  @default(false)
   imageUrl        String?
-  tags            String?            // Stored as JSON string
   
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
+  // Relation propre pour les tags au lieu du JSON
+  tags            Tag[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   authorId        Int?
-  author          User?              @relation(fields: [authorId], references: [id])
+  author          User?    @relation(fields: [authorId], references: [id])
 
   ingredients     RecipeIngredient[]
   steps           RecipeStep[]
   mealPlanItems   MealPlanItem[]
 }
 
+model Tag {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique
+  recipes Recipe[]
+}
+
 model RecipeIngredient {
   id          Int     @id @default(autoincrement())
   recipeId    Int
   recipe      Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  
   name        String
   quantity    Decimal
   unit        String
@@ -52,35 +63,31 @@ model RecipeStep {
   id          Int    @id @default(autoincrement())
   recipeId    Int
   recipe      Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  
   stepOrder   Int
   instruction String
 }
 
 model MealPlanItem {
   id                 Int      @id @default(autoincrement())
-  date               DateTime // Date only
+  date               DateTime
+  
   recipeId           Int
   recipe             Recipe   @relation(fields: [recipeId], references: [id])
+  
   servings           Int
   servingsVegetarian Int      @default(0)
-  mealType           String   @default("dinner")
+  mealType           String   @default("dinner") // 'lunch', 'dinner'
   isShopped          Boolean  @default(false)
 }
 
-model GroceryManualItem {
+// Pour la liste de courses
+model GroceryItem {
   id        Int     @id @default(autoincrement())
   name      String
   quantity  Decimal @default(1)
   unit      String?
   isChecked Boolean @default(false)
   category  String  @default("Divers")
-}
-
-model GroceryLibraryItem {
-  id          Int       @id @default(autoincrement())
-  name        String    @unique
-  category    String    @default("Divers")
-  defaultUnit String?
-  usageCount  Int       @default(1)
-  lastUsed    DateTime?
+  isManual  Boolean @default(true) // Séparation manuel vs généré
 }
