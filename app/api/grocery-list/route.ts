@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { Decimal } from "@prisma/client/runtime/library";
+import prisma from "@/lib/prisma";
 
 // GET /api/grocery-list?start=YYYY-MM-DD&end=YYYY-MM-DD
 export async function GET(req: Request) {

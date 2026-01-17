@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 // GET /api/meal-plan?start=YYYY-MM-DD&end=YYYY-MM-DD
 export async function GET(req: Request) {
